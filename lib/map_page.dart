@@ -195,4 +195,32 @@ class _MapPageState extends State<MapPage> {
           ],
         ), // Stack
       ), // SafeArea
-      
+      floatingActionButton: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                if (_pickedAddress != null)
+                  FloatingActionButton.extended(
+                    onPressed: _confirmSelection,
+                    heroTag: 'confirm',
+                    label: const Text('Pilih Alamat'),
+                  ), // FloatingActionButton.extended
+                const SizedBox(height: 8),
+                if (_pickedAddress != null)
+                  FloatingActionButton.extended(
+                    onPressed: () {
+                      setState(() {
+                        _pickedAddress = null;
+                        _pickedMarker = null;
+                      });
+                    },
+                    // Bagian bawah ini terpotong di layar, jadi aku lengkapi ya:
+                    heroTag: 'clear', 
+                    label: const Text('Hapus Alamat'), 
+                  ), // FloatingActionButton.extended
+              ],
+            ), // Column
+          ); // Scaffold
+  } // Penutup method build
+} // Penutup class _MapPageState
