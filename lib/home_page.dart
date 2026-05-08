@@ -10,7 +10,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? alamatDipilih;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,35 +26,38 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Pilih Alamat'),
-                    IconButton(
-                      icon: const Icon(Icons.map, color: Colors.blue),
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MapPage(),
-                          ), // MaterialPageRoute
-                        );
-                        if (result != null) {
-                          setState(() {
-                            alamatDipilih = result;
-                          });
-                        }
-                      },
-                    ), // IconButton
-                  ],
-                ), // Row
-                alamatDipilih == null
-                    ? const Text('Tidak ada alamat yang dipilih')
-                    : Text(alamatDipilih!),
-              ],
-            ), // Row
-            ], 
-          ), // Column
-        ), // Center
-      ), // SafeArea
-    ); // Scaffold
+                        children: [
+                          const Text("Pilih Alamat:"),
+                          IconButton(
+                            icon: const Icon(Icons.map, color: Colors.blue),
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => 
+                                  const MapPage()
+                                )
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  alamatDipilih = result;
+                                });
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                      alamatDipilih == null
+                      ? const Text("Tidak ada alamat yang dipilih")
+                      : Text(alamatDipilih!),
+                    ],
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      )
+    );
   }
 }

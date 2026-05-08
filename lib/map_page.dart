@@ -138,3 +138,27 @@ class _MapPageState extends State<MapPage> {
         title: const Text('Pilih Alamat'),
       ), // AppBar
       body: SafeArea(
+        child: Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: _initialCamera!,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              mapType: MapType.normal,
+              compassEnabled: true,
+              tiltGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              zoomControlsEnabled: true,
+              rotateGesturesEnabled: true,
+              trafficEnabled: true,
+              buildingsEnabled: true,
+              indoorViewEnabled: true,
+              onMapCreated: (GoogleMapController ctrl) {
+                _ctrl.complete(ctrl);
+              },
+              markers: _pickedMarker != null ? {_pickedMarker!} : {},
+              onTap: _onTap,
+            ), // GoogleMap
+            Positioned(
+              top: 250,
+              left: 56,
