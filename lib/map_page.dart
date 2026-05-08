@@ -122,3 +122,19 @@ class _MapPageState extends State<MapPage> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_initialCamera == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ), // Center
+      ); // Scaffold
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pilih Alamat'),
+      ), // AppBar
+      body: SafeArea(
