@@ -39,3 +39,37 @@ class _MapPageState extends State<MapPage> {
         _currentPosition!.latitude,
         _currentPosition!.longitude,
       );
+
+      final p = placemarks.first;
+      _currentAddress = '${p.name}, ${p.locality}, ${p.country}';
+
+      setState(() {
+        
+      });
+    } catch (e) {
+      _initialCamera = const CameraPosition(target: LatLng(0,0), zoom: 2);
+      setState(() {
+      });
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  Future<Position> getPosition() async {
+    //Check for Services
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      throw 'Location services belum aktif';
+    }
+
+    //Check For Permission
+    LocationPermission perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
+      if (perm == LocationPermission.denied) {
+        throw 'Izin lokasi ditolak';
+      }
+    }
+
+    //Kembalikan nilai awal lokasi
+    return Geolocator.getCurrentPosition();
+  }
