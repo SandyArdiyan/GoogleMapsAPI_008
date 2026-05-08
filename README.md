@@ -1,17 +1,6 @@
-# pertemuan10
+1. Memilih Maps
+   <img width="374" height="787" alt="image" src="https://github.com/user-attachments/assets/b9c36aa3-bbe6-429a-888c-6b53b862c751" />
 
-A new Flutter project.
+2. Hasil Memilih Alamat
+   <img width="386" height="804" alt="image" src="https://github.com/user-attachments/assets/4f9b307d-c62b-46d8-a981-fcc703687950" />
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
