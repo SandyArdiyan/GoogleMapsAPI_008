@@ -44,7 +44,7 @@ class _MapPageState extends State<MapPage> {
       _currentAddress = '${p.name}, ${p.locality}, ${p.country}';
 
       setState(() {
-        
+
       });
     } catch (e) {
       _initialCamera = const CameraPosition(target: LatLng(0,0), zoom: 2);
@@ -72,4 +72,53 @@ class _MapPageState extends State<MapPage> {
 
     //Kembalikan nilai awal lokasi
     return Geolocator.getCurrentPosition();
+  }
+
+  Future<void> _onTap(LatLng latlng) async {
+    final placemarks = await placemarkFromCoordinates(
+      latlng.latitude,
+      latlng.longitude,
+    );
+
+    final p = placemarks.first;
+    setState(() {
+      _pickedMarker = Marker(
+        markerId: const MarkerId('picked'),
+        position: latlng,
+        infoWindow: InfoWindow(
+          title: p.name?.isEmpty == true ? 'Lokasi Dipilih' : p.name,
+          snippet: '${p.street}, ${p.locality}',
+        ), // InfoWindow
+      );
+    });
+
+    final ctrl = await _ctrl.future;
+    await ctrl.animateCamera(CameraUpdate.newLatLngZoom(latlng, 18));
+
+    setState(() {
+      _pickedAddress = '${p.name}, ${p.street}, ${p.locality}, ${p.country}, ${p.postalCode}';
+    });
+  }
+
+  void _confirmSelection() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Konfirmasi Alamat'),
+        content: Text(_pickedAddress ?? ''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ), // TextButton
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // Menutup dialog
+              Navigator.pop(context, _pickedAddress); // Kembali ke halaman sebelumnya dengan membawa data
+            },
+            child: const Text('Pilih'),
+          ), // ElevatedButton
+        ],
+      ),
+    );
   }
