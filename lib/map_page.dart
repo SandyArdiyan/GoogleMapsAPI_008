@@ -162,3 +162,37 @@ class _MapPageState extends State<MapPage> {
             Positioned(
               top: 250,
               left: 56,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ), // BoxShadow
+                  ],
+                ), // BoxDecoration
+                child: Text(_currentAddress ?? 'Kosong'),
+              ), // Container
+            ), // Positioned
+            if (_pickedAddress != null)
+              Positioned(
+                bottom: 120,
+                left: 10,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      _pickedAddress!,
+                      style: const TextStyle(fontSize: 12),
+                    ), // Text
+                  ), // Padding
+                ), // Card
+              ), // Positioned
+          ],
+        ), // Stack
+      ), // SafeArea
+      
