@@ -28,12 +28,13 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _setupLocation() async {
     try {
-      final pos = await _determinePosition(); 
+      // Memanggil getPosition() untuk mendapatkan lokasi saat ini
+      final pos = await getPosition(); 
       _currentPosition = pos;
       _initialCamera = CameraPosition(
         target: LatLng(pos.latitude, pos.longitude),
         zoom: 16,
-      ); // CameraPosition
+      );
 
       final placemarks = await placemarkFromCoordinates(
         _currentPosition!.latitude,
@@ -43,25 +44,26 @@ class _MapPageState extends State<MapPage> {
       final p = placemarks.first;
       _currentAddress = '${p.name}, ${p.locality}, ${p.country}';
 
-      setState(() {
-
-      });
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       _initialCamera = const CameraPosition(target: LatLng(0,0), zoom: 2);
-      setState(() {
-      });
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        setState(() {});
+        debugPrint(e.toString()); // Menggunakan debugPrint untuk menghindari avoid_print warning
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 
   Future<Position> getPosition() async {
-    //Check for Services
+    // Cek apakah layanan lokasi aktif
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw 'Location services belum aktif';
     }
 
-    //Check For Permission
+    // Cek izin lokasi
     LocationPermission perm = await Geolocator.checkPermission();
     if (perm == LocationPermission.denied) {
       perm = await Geolocator.requestPermission();
@@ -70,8 +72,11 @@ class _MapPageState extends State<MapPage> {
       }
     }
 
-    //Kembalikan nilai awal lokasi
-    return Geolocator.getCurrentPosition();
+    if (perm == LocationPermission.deniedForever) {
+      throw 'Izin lokasi ditolak permanen, silakan aktifkan di pengaturan';
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<void> _onTap(LatLng latlng) async {
@@ -86,9 +91,9 @@ class _MapPageState extends State<MapPage> {
         markerId: const MarkerId('picked'),
         position: latlng,
         infoWindow: InfoWindow(
-          title: p.name?.isEmpty == true ? 'Lokasi Dipilih' : p.name,
+          title: (p.name == null || p.name!.isEmpty) ? 'Lokasi Dipilih' : p.name,
           snippet: '${p.street}, ${p.locality}',
-        ), // InfoWindow
+        ),
       );
     });
 
@@ -110,14 +115,14 @@ class _MapPageState extends State<MapPage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Batal'),
-          ), // TextButton
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context); // Menutup dialog
-              Navigator.pop(context, _pickedAddress); // Kembali ke halaman sebelumnya dengan membawa data
+              Navigator.pop(context, _pickedAddress); // Kembali ke HomePage dengan data
             },
             child: const Text('Pilih'),
-          ), // ElevatedButton
+          ),
         ],
       ),
     );
@@ -129,14 +134,14 @@ class _MapPageState extends State<MapPage> {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
-        ), // Center
-      ); // Scaffold
+        ),
+      );
     }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pilih Alamat'),
-      ), // AppBar
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -158,69 +163,78 @@ class _MapPageState extends State<MapPage> {
               },
               markers: _pickedMarker != null ? {_pickedMarker!} : {},
               onTap: _onTap,
-            ), // GoogleMap
+            ),
+            // Penempatan alamat saat ini (Current Address)
             Positioned(
-              top: 250,
-              left: 56,
+              top: 16,
+              left: 16,
+              right: 60, // Batas kanan agar tidak tertutup tombol MyLocation
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
                       blurRadius: 4,
                       offset: Offset(0, 2),
-                    ), // BoxShadow
+                    ),
                   ],
-                ), // BoxDecoration
-                child: Text(_currentAddress ?? 'Kosong'),
-              ), // Container
-            ), // Positioned
+                ),
+                child: Text(
+                  _currentAddress ?? 'Mencari lokasi...',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            // Penempatan alamat yang dipilih (Picked Address)
             if (_pickedAddress != null)
               Positioned(
                 bottom: 120,
-                left: 10,
+                left: 16,
+                right: 16, // Menghindari overflow teks panjang
                 child: Card(
+                  elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Text(
                       _pickedAddress!,
                       style: const TextStyle(fontSize: 12),
-                    ), // Text
-                  ), // Padding
-                ), // Card
-              ), // Positioned
+                    ),
+                  ),
+                ),
+              ),
           ],
-        ), // Stack
-      ), // SafeArea
+        ),
+      ),
       floatingActionButton: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                if (_pickedAddress != null)
-                  FloatingActionButton.extended(
-                    onPressed: _confirmSelection,
-                    heroTag: 'confirm',
-                    label: const Text('Pilih Alamat'),
-                  ), // FloatingActionButton.extended
-                const SizedBox(height: 8),
-                if (_pickedAddress != null)
-                  FloatingActionButton.extended(
-                    onPressed: () {
-                      setState(() {
-                        _pickedAddress = null;
-                        _pickedMarker = null;
-                      });
-                    },
-                    // Bagian bawah ini terpotong di layar, jadi aku lengkapi ya:
-                    heroTag: 'clear', 
-                    label: const Text('Hapus Alamat'), 
-                  ), // FloatingActionButton.extended
-              ],
-            ), // Column
-          ); // Scaffold
-  } // Penutup method build
-} // Penutup class _MapPageState
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end, // Rata kanan agar rapi
+        children: [
+          if (_pickedAddress != null)
+            FloatingActionButton.extended(
+              onPressed: _confirmSelection,
+              heroTag: 'confirm',
+              icon: const Icon(Icons.check),
+              label: const Text('Pilih Alamat'),
+            ),
+          const SizedBox(height: 8),
+          if (_pickedAddress != null)
+            FloatingActionButton.extended(
+              onPressed: () {
+                setState(() {
+                  _pickedAddress = null;
+                  _pickedMarker = null;
+                });
+              },
+              heroTag: 'clear', 
+              backgroundColor: Colors.redAccent,
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Hapus Alamat'), 
+            ),
+        ],
+      ),
+    );
+  }
+}
